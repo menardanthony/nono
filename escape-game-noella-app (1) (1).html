@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🔍 Escape Game — Joyeux Anniversaire NoNo !</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rose: #ff4d7d;
+  --rose-dark: #c4003d;
+  --vert: #00c97a;
+  --bleu: #4d9fff;
+  --or: #ffb830;
+  --violet: #9b5de5;
+  --dark: #0a0812;
+  --dark2: #14101e;
+  --card: #1a1530;
+  --card2: #211c38;
+  --border: rgba(255,255,255,0.08);
+  --text: #f0ecff;
+  --text2: #9990bb;
+  --glow-rose: 0 0 30px rgba(255,77,125,0.35);
+  --glow-vert: 0 0 30px rgba(0,201,122,0.35);
+  --glow-bleu: 0 0 30px rgba(77,159,255,0.35);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== BG STARS ===== */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(155,93,229,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(255,77,125,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(0,201,122,0.05) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
+
+/* ===== SCREENS ===== */
+.screen { display:none; position:relative; z-index:1; }
+.screen.active { display:block; }
+
+/* ===== WELCOME SCREEN ===== */
+#screen-welcome {
+  min-height:100vh;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:30px 20px;
+  text-align:center;
+}
+#screen-welcome.active { display:flex; }
+
+.welcome-logo {
+  font-size:64px;
+  margin-bottom:16px;
+  animation: floatBounce 3s ease-in-out infinite;
+}
+@keyframes floatBounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.welcome-title {
+  font-size:clamp(28px,8vw,48px);
+  font-weight:800;
+  line-height:1.1;
+  margin-bottom:8px;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--or) 50%, var(--violet) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-sub {
+  font-family:'Space Mono', monospace;
+  font-size:13px;
+  color:var(--text2);
+  margin-bottom:32px;
+  letter-spacing:1px;
+}
+
+.villain-box {
+  background: var(--card);
+  border: 1.5px solid rgba(255,77,125,0.3);
+  border-radius:20px;
+  padding:20px 24px;
+  max-width:380px;
+  margin-bottom:28px;
+  box-shadow: var(--glow-rose);
+  position:relative;
+  overflow:hidden;
+}
+.villain-box::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+}
+.villain-box .villain-emoji { font-size:36px; margin-bottom:8px; }
+.villain-box h3 { font-size:15px; color:var(--rose); margin-bottom:8px; }
+.villain-box p { font-size:13px; color:var(--text2); line-height:1.7; }
+.villain-box strong { color:var(--text); }
+
+/* TEAM SELECT */
+.team-select-title {
+  font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text2);
+  letter-spacing:1px; text-transform:uppercase;
+}
+
+.teams-grid {
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:12px;
+  width:100%;
+  max-width:380px;
+  margin-bottom:28px;
+}
+
+.team-btn {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius:16px;
+  padding:16px 8px;
+  cursor:pointer;
+  transition: all 0.25s;
+  font-family:'Syne',sans-serif;
+  color:var(--text);
+  font-weight:700;
+  font-size:12px;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+}
+.team-btn .team-emoji { font-size:28px; }
+.team-btn:hover { transform:translateY(-3px); }
+.team-btn.selected-rose { background:rgba(255,77,125,0.15); border-color:var(--rose); box-shadow:var(--glow-rose); }
+.team-btn.selected-vert { background:rgba(0,201,122,0.15); border-color:var(--vert); box-shadow:var(--glow-vert); }
+.team-btn.selected-bleu { background:rgba(77,159,255,0.15); border-color:var(--bleu); box-shadow:var(--glow-bleu); }
+
+.team-members {
+  font-size:10px; color:var(--text2); font-weight:400; text-align:center; margin-top:4px; line-height:1.5;
+}
+
+.start-btn {
+  background: linear-gradient(135deg, var(--rose), var(--violet));
+  border:none; border-radius:50px;
+  padding:16px 40px;
+  font-family:'Syne',sans-serif;
+  font-size:16px; font-weight:800;
+  color:white; cursor:pointer;
+  transition: all 0.25s;
+  box-shadow: 0 4px 30px rgba(255,77,125,0.4);
+  display:none;
+}
+.start-btn.visible { display:block; }
+.start-btn:hover { transform:translateY(-2px); box-shadow:0 8px 40px rgba(255,77,125,0.5); }
+
+/* ===== GAME SCREEN ===== */
+#screen-game {
+  min-height:100vh;
+  padding:0 0 100px;
+  display:none;
+  flex-direction:column;
+}
+#screen-game.active { display:flex; }
+
+/* TOP BAR */
+.topbar {
+  position:sticky; top:0; z-index:100;
+  background: rgba(10,8,18,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+}
+
+.team-badge {
+  display:flex; align-items:center; gap:8px;
+  background:var(--card);
+  border-radius:30px;
+  padding:6px 14px;
+  font-size:13px; font-weight:700;
+  border:1.5px solid var(--border);
+}
+
+.timer-display {
+  font-family:'Space Mono', monospace;
+  font-size:20px; font-weight:700;
+  color:var(--or);
+  background:var(--card);
+  border-radius:30px;
+  padding:6px 16px;
+  border:1.5px solid rgba(255,184,48,0.3);
+  min-width:90px; text-align:center;
+  transition: color 0.3s;
+}
+.timer-display.warning { color:var(--rose); border-color:rgba(255,77,125,0.5); animation:timerPulse 1s infinite; }
+@keyframes timerPulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+.score-badge {
+  display:flex; align-items:center; gap:6px;
+  background:var(--card);
+  border-radius:30px;
+  padding:6px 14px;
+  font-size:13px; font-weight:700;
+  border:1.5px solid rgba(255,184,48,0.3);
+  color:var(--or);
+}
+
+/* PROGRESS BAR */
+.progress-bar-wrap {
+  padding:12px 20px 0;
+  display:flex; gap:6px;
+}
+.progress-step {
+  flex:1; height:4px; border-radius:2px;
+  background:var(--card2);
+  transition:background 0.4s;
+}
+.progress-step.done { background:var(--vert); }
+.progress-step.current { background:var(--or); }
+
+/* ENIGMA CARD */
+.enigma-wrap { padding:16px 20px; }
+
+.enigma-card {
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:24px;
+  overflow:hidden;
+  animation: slideUp 0.4s ease-out;
+}
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.enigma-card-header {
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:14px;
+}
+
+.enigma-num-badge {
+  width:48px; height:48px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:800; flex-shrink:0;
+}
+
+.enigma-card-title { font-size:18px; font-weight:800; line-height:1.2; }
+.enigma-card-subtitle { font-size:12px; color:var(--text2); margin-top:2px; font-family:'Space Mono',monospace; }
+
+.enigma-body { padding:18px 20px; }
+.enigma-text { font-size:14px; line-height:1.8; color:var(--text); margin-bottom:16px; }
+
+/* LAB CARD */
+.lab-card {
+  background:rgba(0,201,122,0.06);
+  border:1.5px solid rgba(0,201,122,0.25);
+  border-radius:14px;
+  padding:14px 16px;
+  margin-bottom:14px;
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+}
+.lab-card-title {
+  text-align:center; color:var(--vert); font-weight:700;
+  font-size:12px; letter-spacing:2px; margin-bottom:12px;
+}
+.lab-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+}
+.lab-item {
+  background:rgba(0,201,122,0.08);
+  border-radius:8px; padding:6px 10px;
+  font-size:10px; color:var(--text2); line-height:1.5;
+}
+.lab-item strong { color:var(--vert); }
+
+/* TWO PATHS */
+.two-paths { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.path-card {
+  border-radius:14px; padding:14px;
+  font-size:12px; line-height:1.7;
+}
+.path-a { background:rgba(255,77,125,0.08); border:1.5px solid rgba(255,77,125,0.25); }
+.path-b { background:rgba(155,93,229,0.08); border:1.5px solid rgba(155,93,229,0.25); }
+.path-title { font-weight:800; font-size:13px; margin-bottom:8px; }
+.path-a .path-title { color:var(--rose); }
+.path-b .path-title { color:var(--violet); }
+.path-formula {
+  background:rgba(255,255,255,0.06);
+  border-radius:8px; padding:6px 10px;
+  font-family:'Space Mono',monospace;
+  font-size:11px; text-align:center;
+  margin:8px 0;
+}
+.path-hint { font-size:10px; color:var(--text2); margin-top:6px; font-style:italic; }
+
+/* CLUE BOX */
+.clue-box {
+  border-radius:12px; padding:12px 14px;
+  display:flex; gap:10px; align-items:flex-start;
+  margin-bottom:14px;
+  font-size:13px;
+}
+.clue-locked { background:rgba(255,255,255,0.04); border:1.5px dashed rgba(255,255,255,0.15); }
+.clue-unlocked { background:rgba(255,184,48,0.08); border:1.5px solid rgba(255,184,48,0.3); }
+.clue-icon { font-size:20px; flex-shrink:0; }
+.clue-text { color:var(--text2); font-size:12px; line-height:1.6; }
+.clue-text.revealed { color:var(--or); }
+.unlock-btn {
+  background:linear-gradient(135deg, var(--or), #ff8c00);
+  border:none; border-radius:20px;
+  padding:6px 16px; font-family:'Syne',sans-serif;
+  font-size:12px; font-weight:700; color:var(--dark);
+  cursor:pointer; margin-top:6px; white-space:nowrap;
+  transition:all 0.2s;
+}
+.unlock-btn:hover { transform:scale(1.03); }
+.unlock-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+/* ANSWER INPUT */
+.answer-section { margin-top:16px; }
+.answer-label { font-size:12px; color:var(--text2); margin-bottom:8px; font-family:'Space Mono',monospace; letter-spacing:1px; text-transform:uppercase; }
+.answer-input {
+  width:100%; background:var(--card2);
+  border:2px solid var(--border);
+  border-radius:14px; padding:14px 16px;
+  font-family:'Space Mono',monospace;
+  font-size:22px; font-weight:700;
+  color:var(--text); text-align:center;
+  letter-spacing:4px;
+  transition:border-color 0.2s;
+  outline:none;
+}
+.answer-input:focus { border-color:var(--or); }
+.answer-input.correct { border-color:var(--vert); background:rgba(0,201,122,0.08); color:var(--vert); }
+.answer-input.wrong { border-color:var(--rose); background:rgba(255,77,125,0.08); animation:shake 0.4s; }
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)}
+}
+
+.validate-btn {
+  width:100%; margin-top:12px;
+  background:linear-gradient(135deg, var(--vert), #00a060);
+  border:none; border-radius:14px;
+  padding:16px; font-family:'Syne',sans-serif;
+  font-size:16px; font-weight:800; color:white;
+  cursor:pointer; transition:all 0.25s;
+  box-shadow:0 4px 20px rgba(0,201,122,0.3);
+}
+.validate-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,201,122,0.4); }
+.validate-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+
+.feedback-msg {
+  text-align:center; padding:10px; border-radius:10px;
+  font-weight:700; font-size:14px; margin-top:10px;
+  display:none;
+}
+.feedback-msg.show { display:block; }
+.feedback-msg.ok { background:rgba(0,201,122,0.1); color:var(--vert); }
+.feedback-msg.ko { background:rgba(255,77,125,0.1); color:var(--rose); }
+
+/* CODE ASSEMBLY */
+.code-assembly {
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:20px;
+  margin:16px 20px;
+  text-align:center;
+}
+.code-assembly-title { font-size:13px; color:var(--text2); margin-bottom:14px; letter-spacing:1px; text-transform:uppercase; font-family:'Space Mono',monospace; }
+.code-digits {
+  display:flex; justify-content:center; gap:8px; flex-wrap:wrap;
+}
+.code-digit {
+  background:var(--card2);
+  border:2px solid var(--border);
+  border-radius:12px;
+  min-width:44px; height:54px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Space Mono',monospace;
+  font-size:20px; font-weight:700;
+  color:var(--text2);
+  transition:all 0.3s;
+  padding:0 8px;
+}
+.code-digit.filled { border-color:var(--vert); color:var(--vert); background:rgba(0,201,122,0.1); }
+
+/* BONUS ACTIVITIES */
+.bonus-section {
+  padding:0 20px;
+  margin-bottom:16px;
+}
+.bonus-title {
+  font-size:12px; color:var(--text2); letter-spacing:1px;
+  text-transform:uppercase; font-family:'Space Mono',monospace;
+  margin-bottom:10px;
+}
+.bonus-cards { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; }
+.bonus-card {
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:14px; padding:12px 14px;
+  min-width:130px; flex-shrink:0;
+  cursor:pointer; transition:all 0.2s;
+}
+.bonus-card:hover { border-color:var(--or); background:rgba(255,184,48,0.06); }
+.bonus-card.used { opacity:0.5; cursor:default; }
+.bonus-card .b-emoji { font-size:24px; margin-bottom:6px; }
+.bonus-card .b-name { font-size:12px; font-weight:700; margin-bottom:4px; }
+.bonus-card .b-desc { font-size:10px; color:var(--text2); }
+.bonus-card .b-reward { font-size:10px; color:var(--or); font-weight:700; margin-top:6px; }
+
+/* MODAL */
+.modal-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter:blur(8px);
+  z-index:200;
+  display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+.modal-overlay.show { display:flex; }
+.modal-box {
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:24px;
+  padding:28px 24px;
+  max-width:380px; width:100%;
+  text-align:center;
+  animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modalPop {
+  from { opacity:0; transform:scale(0.85); }
+  to { opacity:1; transform:scale(1); }
+}
+.modal-emoji { font-size:52px; margin-bottom:12px; }
+.modal-title { font-size:22px; font-weight:800; margin-bottom:8px; }
+.modal-text { font-size:14px; color:var(--text2); line-height:1.7; margin-bottom:20px; }
+.modal-btn {
+  background:linear-gradient(135deg,var(--rose),var(--violet));
+  border:none; border-radius:50px;
+  padding:14px 32px;
+  font-family:'Syne',sans-serif;
+  font-size:15px; font-weight:800; color:white;
+  cursor:pointer; transition:all 0.2s;
+  box-shadow:0 4px 20px rgba(255,77,125,0.3);
+}
+.modal-btn:hover { transform:translateY(-2px); }
+.modal-btn-green {
+  background:linear-gradient(135deg,var(--vert),#00a060);
+  box-shadow:0 4px 20px rgba(0,201,122,0.3);
+}
+
+/* VICTORY SCREEN */
+#screen-victory {
+  min-height:100vh; display:none;
+  flex-direction:column; align-items:center;
+  justify-content:center; padding:30px 20px;
+  text-align:center;
+}
+#screen-victory.active { display:flex; }
+
+.victory-emoji { font-size:80px; animation:floatBounce 2s ease-in-out infinite; margin-bottom:16px; }
+.victory-title {
+  font-size:clamp(28px,8vw,44px); font-weight:800;
+  background:linear-gradient(135deg,var(--or),var(--rose));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:8px;
+}
+.victory-sub { font-size:15px; color:var(--text2); margin-bottom:24px; font-family:'Space Mono',monospace; }
+
+.final-code-box {
+  background:var(--card);
+  border:2px solid var(--or);
+  border-radius:20px;
+  padding:20px 28px;
+  margin-bottom:24px;
+  box-shadow:0 0 40px rgba(255,184,48,0.2);
+}
+.final-code-label { font-size:11px; color:var(--text2); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; font-family:'Space Mono',monospace; }
+.final-code-digits {
+  display:flex; justify-content:center; gap:8px; flex-wrap:wrap;
+}
+.final-code-digit {
+  background:var(--dark);
+  border:2px solid var(--or);
+  border-radius:12px;
+  min-width:44px; height:54px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Space Mono',monospace;
+  font-size:22px; font-weight:700; color:var(--or);
+  padding:0 8px;
+}
+
+.treasure-hint {
+  background:rgba(255,77,125,0.1);
+  border:1.5px solid rgba(255,77,125,0.3);
+  border-radius:16px; padding:16px 20px;
+  margin-bottom:20px; max-width:360px;
+}
+.treasure-hint h3 { color:var(--rose); font-size:16px; margin-bottom:6px; }
+.treasure-hint p { font-size:13px; color:var(--text2); line-height:1.7; }
+
+/* SCOREBOARD */
+.scoreboard {
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:20px; width:100%; max-width:380px;
+  margin-bottom:20px;
+}
+.scoreboard-title { font-size:14px; font-weight:700; margin-bottom:12px; text-align:center; color:var(--text2); }
+.score-row {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 0; border-bottom:1px solid var(--border);
+}
+.score-row:last-child { border-bottom:none; }
+.score-rank { font-size:20px; width:28px; text-align:center; }
+.score-team { flex:1; font-weight:700; font-size:14px; }
+.score-pts { font-family:'Space Mono',monospace; font-size:16px; font-weight:700; color:var(--or); }
+
+/* ADMIN SCREEN */
+#screen-admin {
+  min-height:100vh; padding:20px;
+  display:none; flex-direction:column; gap:16px;
+}
+#screen-admin.active { display:flex; }
+.admin-title {
+  font-size:22px; font-weight:800;
+  background:linear-gradient(135deg,var(--violet),var(--rose));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.admin-card {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:16px; padding:16px;
+}
+.admin-card h3 { font-size:14px; margin-bottom:10px; color:var(--text2); }
+.team-score-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); }
+.team-score-row:last-child { border-bottom:none; }
+.admin-btn {
+  background:var(--card2); border:1.5px solid var(--border);
+  border-radius:10px; padding:8px 16px;
+  font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
+  color:var(--text); cursor:pointer; transition:all 0.2s;
+}
+.admin-btn:hover { border-color:var(--or); color:var(--or); }
+.admin-btn.danger { border-color:rgba(255,77,125,0.3); }
+.admin-btn.danger:hover { border-color:var(--rose); color:var(--rose); }
+
+/* QUIZ */
+.quiz-card {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:16px; padding:14px 16px;
+}
+.quiz-q-text { font-size:13px; font-weight:700; margin-bottom:10px; line-height:1.5; }
+.quiz-options-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.quiz-opt-btn {
+  background:var(--card2); border:1.5px solid var(--border);
+  border-radius:10px; padding:8px 10px;
+  font-family:'Syne',sans-serif; font-size:12px; font-weight:600;
+  color:var(--text); cursor:pointer; transition:all 0.2s; text-align:center;
+}
+.quiz-opt-btn:hover:not(:disabled) { border-color:var(--or); color:var(--or); }
+.quiz-opt-btn:disabled { cursor:default; }
+.quiz-libre { margin-top:4px; }
+
+/* QR PAGE */
+#screen-qr {
+  min-height:100vh; padding:24px 20px;
+  display:none; flex-direction:column; align-items:center; gap:20px;
+}
+#screen-qr.active { display:flex; }
+.qr-title { font-size:22px; font-weight:800; text-align:center; }
+.qr-sub { font-size:13px; color:var(--text2); text-align:center; font-family:'Space Mono',monospace; }
+.qr-grid { display:grid; grid-template-columns:1fr; gap:16px; width:100%; max-width:400px; }
+.qr-card {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:20px; padding:20px;
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  text-align:center;
+}
+.qr-card h3 { font-size:16px; font-weight:800; }
+.qr-code-wrap {
+  background:white; border-radius:12px; padding:12px;
+  width:160px; height:160px; display:flex; align-items:center; justify-content:center;
+}
+.qr-code-wrap canvas { width:136px !important; height:136px !important; }
+.qr-url { font-family:'Space Mono',monospace; font-size:10px; color:var(--text2); word-break:break-all; }
+
+/* NAV BOTTOM */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0;
+  background:rgba(10,8,18,0.95); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; z-index:100;
+}
+.nav-btn {
+  flex:1; padding:12px 8px;
+  background:none; border:none;
+  color:var(--text2); font-family:'Syne',sans-serif;
+  font-size:10px; font-weight:700; letter-spacing:0.5px;
+  cursor:pointer; display:flex; flex-direction:column;
+  align-items:center; gap:4px; transition:color 0.2s;
+}
+.nav-btn .nav-icon { font-size:20px; }
+.nav-btn.active-nav { color:var(--rose); }
+
+/* CONFETTI */
+.confetti-piece {
+  position:fixed; width:8px; height:8px;
+  border-radius:2px; pointer-events:none;
+  animation:confettiFall 3s ease-in forwards;
+  z-index:300;
+}
+@keyframes confettiFall {
+  0% { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+}
+
+/* PRINT QR */
+@media print {
+  body { background:white; }
+  .screen { display:none !important; }
+  #screen-qr { display:flex !important; }
+  .bottom-nav { display:none; }
+  .qr-card { background:white; border:1px solid #ccc; break-inside:avoid; }
+  .qr-url { color:#333; }
+  .qr-title { color:#000; }
+  .qr-sub { color:#666; }
+  .qr-card h3 { color:#000; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== WELCOME SCREEN ===================== -->
+<div id="screen-welcome" class="screen active">
+  <div class="welcome-logo">🔍</div>
+  <div class="welcome-title">Escape Game<br>NoNo</div>
+  <div class="welcome-sub">// MISSION : RÉCUPÉRER LE GÂTEAU //</div>
+
+  <div class="villain-box">
+    <div class="villain-emoji">🦹‍♂️</div>
+    <h3>ALERTE ! Le méchant Dimitri a frappé !</h3>
+    <p>Le <strong>gâteau Mamie Nova</strong> de Noella a été volé et caché quelque part dans le jardin. Résolvez les <strong>5 énigmes</strong> pour obtenir le code secret et retrouver le trésor !</p>
+  </div>
+
+  <div class="team-select-title">Choisissez votre équipe</div>
+  <div class="teams-grid">
+    <button class="team-btn" onclick="selectTeam('rose', this)">
+      <span class="team-emoji">🌸</span>
+      <span>Équipe 1 — Simplet</span>
+      <span class="team-members">Morgane · Régis<br>Xavier · Fitissa · Erwan</span>
+    </button>
+    <button class="team-btn" onclick="selectTeam('vert', this)">
+      <span class="team-emoji">🌿</span>
+      <span>Équipe 2 — Woke</span>
+      <span class="team-members">Mathieu · Margaux<br>Anthony · Tiphaine · Miki</span>
+    </button>
+    <button class="team-btn" onclick="selectTeam('bleu', this)">
+      <span class="team-emoji">🌊</span>
+      <span>Équipe 3 — Alloc'</span>
+      <span class="team-members">Nicolas · Delphine<br>Anthony 2 · Sarah · Laura</span>
+    </button>
+  </div>
+
+  <button class="start-btn" id="start-btn" onclick="startGame()">🚀 Lancer l'aventure !</button>
+
+  <!-- INDICATEUR VERSION -->
+  <div id="version-badge" style="margin-top:20px;padding:8px 16px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Space Mono',monospace;"></div>
+</div>
+
+<!-- ===================== GAME SCREEN ===================== -->
+<div id="screen-game" class="screen">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="team-badge" id="topbar-team">🌸 Rose</div>
+    <div class="timer-display" id="timer-display">29:59</div>
+    <div class="score-badge">⭐ <span id="score-display">0</span> pts</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar-wrap" id="progress-bar">
+    <div class="progress-step current" id="step-0"></div>
+    <div class="progress-step" id="step-1"></div>
+    <div class="progress-step" id="step-2"></div>
+    <div class="progress-step" id="step-3"></div>
+    <div class="progress-step" id="step-4"></div>
+  </div>
+
+  <!-- ENIGMA CONTAINER -->
+  <div class="enigma-wrap" id="enigma-container"></div>
+
+  <!-- CODE ASSEMBLY -->
+  <div class="code-assembly">
+    <div class="code-assembly-title">🔓 Votre code en cours</div>
+    <div class="code-digits" id="code-digits">
+      <div class="code-digit" id="digit-0">?</div>
+      <div class="code-digit" id="digit-1">?</div>
+      <div class="code-digit" id="digit-2">?</div>
+      <div class="code-digit" id="digit-3">?</div>
+      <div class="code-digit" id="digit-4">?</div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- ===================== QUIZ SCREEN ===================== -->
+<div id="screen-quiz" class="screen">
+  <div class="topbar">
+    <div class="team-badge" id="quiz-topbar-team">🌸</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text2);" id="quiz-progress">0 / 13 répondues</div>
+    <div class="score-badge">❓ <span id="quiz-score-display">0.00</span> pts</div>
+  </div>
+  <div style="padding:16px 20px 8px;">
+    <h2 style="font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--violet),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">❓ Quiz — Qui connaît NoNo ?</h2>
+    <p style="font-size:12px;color:var(--text2);margin-top:4px;font-family:'Space Mono',monospace;">0.385 pt par bonne réponse · Max ~5 pts</p>
+  </div>
+  <div id="quiz-container" style="padding:0 20px 100px;display:flex;flex-direction:column;gap:12px;"></div>
+</div>
+
+<!-- ===================== VICTORY SCREEN ===================== -->
+<div id="screen-victory" class="screen">
+  <div class="victory-emoji">🏆</div>
+  <div class="victory-title" id="victory-title">Victoire !</div>
+  <div class="victory-sub" id="victory-sub">Code trouvé en XX:XX</div>
+
+  <div class="final-code-box">
+    <div class="final-code-label">Le code secret était</div>
+    <div class="final-code-digits">
+      <div class="final-code-digit">16</div>
+      <div class="final-code-digit">6</div>
+      <div class="final-code-digit">4</div>
+      <div class="final-code-digit">6</div>
+      <div class="final-code-digit">9</div>
+    </div>
+  </div>
+
+  <div class="treasure-hint">
+    <h3>🎂 Le trésor vous attend !</h3>
+    <p>Courez voir le Maître du Jeu avec votre code — il vous révélera où Dimitri a caché le gâteau Mamie Nova ! 🕯️</p>
+  </div>
+
+  <div class="scoreboard" id="scoreboard">
+    <div class="scoreboard-title">🏅 Scores Escape Game</div>
+    <div id="scoreboard-rows"></div>
+  </div>
+
+  <!-- TRANSITION SACK RACE -->
+  <div style="background:linear-gradient(135deg,rgba(255,184,48,0.15),rgba(255,77,125,0.15));border:2px solid var(--or);border-radius:24px;padding:24px 20px;margin:8px 0 20px;text-align:center;max-width:380px;width:100%;">
+    <div style="font-size:48px;margin-bottom:10px;animation:floatBounce 2s ease-in-out infinite;">🥔</div>
+    <h3 style="font-size:20px;font-weight:800;color:var(--or);margin-bottom:8px;">C'est pas fini !</h3>
+    <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:16px;">
+      L'Escape Game est terminé… mais la compétition continue !<br>
+      <strong style="color:var(--text);">Rendez-vous dehors pour la 🥔 Course au Sac à Patates !</strong><br><br>
+      <span style="font-size:12px;">1er → 5 pts · 2ème → 3 pts · 3ème → 0 pt</span>
+    </p>
+    <div style="background:var(--card);border-radius:14px;padding:12px 16px;font-size:12px;color:var(--text2);text-align:left;margin-bottom:16px;">
+      <p style="font-weight:700;color:var(--or);margin-bottom:6px;">📋 Règles rappel :</p>
+      <p>• Un représentant par équipe s'élance dans le sac</p>
+      <p style="margin-top:4px;">• Parcours aller-retour de ~10 mètres</p>
+      <p style="margin-top:4px;">• Toutes les équipes partent en même temps</p>
+      <p style="margin-top:4px;">• Égalité → on rejoue !</p>
+    </div>
+    <button class="modal-btn" style="background:linear-gradient(135deg,var(--or),#e08800);box-shadow:0 4px 20px rgba(255,184,48,0.4);" onclick="showScreen('video')">
+      🎬 Voir la vidéo surprise !
+    </button>
+  </div>
+
+  <button class="modal-btn" onclick="triggerConfetti()" style="margin-bottom:80px;">🎊 Confettis !</button>
+</div>
+
+<!-- ===================== VIDEO SCREEN ===================== -->
+<div id="screen-video" class="screen">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;">
+
+    <div style="font-size:72px;margin-bottom:16px;animation:floatBounce 2s ease-in-out infinite;">🎬</div>
+    <h1 style="font-size:28px;font-weight:800;color:var(--or);margin-bottom:8px;">Avant la course…</h1>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:32px;font-family:'Space Mono',monospace;">Un petit message spécial vous attend ! 👀</p>
+
+    <!-- BOUTON OUVRIR YOUTUBE -->
+    <a href="https://youtube.com/shorts/_PVupHcHLEg" target="_blank"
+      style="display:flex;flex-direction:column;align-items:center;gap:12px;
+      background:linear-gradient(135deg,#ff0000,#cc0000);
+      border-radius:24px;padding:28px 40px;
+      text-decoration:none;color:white;
+      box-shadow:0 8px 40px rgba(255,0,0,0.4);
+      margin-bottom:32px;max-width:320px;width:100%;
+      transition:transform 0.2s;"
+      onmouseover="this.style.transform='scale(1.03)'"
+      onmouseout="this.style.transform='scale(1)'">
+      <div style="font-size:52px;">▶️</div>
+      <div style="font-weight:800;font-size:18px;">Lancer la vidéo</div>
+      <div style="font-size:12px;opacity:0.85;">S'ouvre dans YouTube</div>
+    </a>
+
+    <p style="font-size:12px;color:var(--text2);margin-bottom:24px;font-style:italic;">
+      👆 Appuyez pour ouvrir · Revenez ensuite sur cette page
+    </p>
+
+    <button class="modal-btn" style="background:linear-gradient(135deg,var(--or),#e08800);box-shadow:0 4px 20px rgba(255,184,48,0.4);font-size:16px;padding:16px 36px;" onclick="showScreen('sackrace')">
+      🥔 C'est parti pour la course !
+    </button>
+
+  </div>
+</div>
+
+<!-- ===================== SACK RACE SCREEN ===================== -->
+<div id="screen-sackrace" class="screen">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;">
+
+    <div style="font-size:72px;animation:floatBounce 1.5s ease-in-out infinite;margin-bottom:16px;">🥔</div>
+    <h1 style="font-size:32px;font-weight:800;color:var(--or);margin-bottom:8px;">Course au Sac à Patates !</h1>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:24px;font-family:'Space Mono',monospace;">Que le meilleur gagne… et les patates aussi 🏅</p>
+
+    <!-- RÈGLES -->
+    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 20px;max-width:380px;width:100%;margin-bottom:20px;text-align:left;">
+      <p style="font-weight:800;color:var(--or);margin-bottom:8px;font-size:14px;">📋 Règles</p>
+      <p style="font-size:13px;color:var(--text2);line-height:1.8;">
+        • Un représentant par équipe s'élance dans le sac<br>
+        • Parcours <strong style="color:var(--text);">aller-retour ~10 mètres</strong><br>
+        • Toutes les équipes partent <strong style="color:var(--text);">en même temps</strong><br>
+        • Égalité → on rejoue !
+      </p>
+    </div>
+
+    <!-- SAISIE DES POINTS -->
+    <div style="background:var(--card);border:2px solid var(--or);border-radius:20px;padding:20px;max-width:380px;width:100%;margin-bottom:20px;">
+      <p style="font-weight:800;color:var(--or);margin-bottom:4px;font-size:15px;">🏅 Saisir les points</p>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:16px;font-family:'Space Mono',monospace;">1er = 5 pts · 2ème = 3 pts · 3ème = 0 pt</p>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+
+        <!-- Équipe 1 -->
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(255,77,125,0.08);border:1.5px solid rgba(255,77,125,0.3);border-radius:14px;padding:12px 14px;">
+          <div style="font-size:22px;">🌸</div>
+          <div style="flex:1;text-align:left;">
+            <div style="font-size:12px;font-weight:800;color:var(--rose);">Équipe 1 — Simplet</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="setSackPoints('rose', 5)" id="sack-rose-5" class="pts-btn" style="background:rgba(255,184,48,0.15);border:1.5px solid rgba(255,184,48,0.3);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--or);cursor:pointer;">🥇 5</button>
+            <button onclick="setSackPoints('rose', 3)" id="sack-rose-3" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥈 3</button>
+            <button onclick="setSackPoints('rose', 0)" id="sack-rose-0" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥉 0</button>
+          </div>
+        </div>
+
+        <!-- Équipe 2 -->
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(0,201,122,0.08);border:1.5px solid rgba(0,201,122,0.3);border-radius:14px;padding:12px 14px;">
+          <div style="font-size:22px;">🌿</div>
+          <div style="flex:1;text-align:left;">
+            <div style="font-size:12px;font-weight:800;color:var(--vert);">Équipe 2 — Woke</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="setSackPoints('vert', 5)" id="sack-vert-5" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥇 5</button>
+            <button onclick="setSackPoints('vert', 3)" id="sack-vert-3" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥈 3</button>
+            <button onclick="setSackPoints('vert', 0)" id="sack-vert-0" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥉 0</button>
+          </div>
+        </div>
+
+        <!-- Équipe 3 -->
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(77,159,255,0.08);border:1.5px solid rgba(77,159,255,0.3);border-radius:14px;padding:12px 14px;">
+          <div style="font-size:22px;">🌊</div>
+          <div style="flex:1;text-align:left;">
+            <div style="font-size:12px;font-weight:800;color:var(--bleu);">Équipe 3 — Alloc'</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="setSackPoints('bleu', 5)" id="sack-bleu-5" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥇 5</button>
+            <button onclick="setSackPoints('bleu', 3)" id="sack-bleu-3" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥈 3</button>
+            <button onclick="setSackPoints('bleu', 0)" id="sack-bleu-0" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥉 0</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RÉSUMÉ POINTS -->
+      <div style="margin-top:14px;padding:10px 14px;background:var(--card2);border-radius:10px;font-size:12px;font-family:'Space Mono',monospace;color:var(--text2);" id="sack-summary">
+        En attente des résultats…
+      </div>
+    </div>
+
+    <button class="modal-btn" style="background:linear-gradient(135deg,var(--rose),var(--violet));box-shadow:0 4px 20px rgba(255,77,125,0.4);margin-bottom:12px;" onclick="showScreen('video2')">
+      🎬 Voir la vidéo suivante →
+    </button>
+    <button onclick="showScreen('quiz')" style="background:none;border:none;color:var(--text2);font-size:13px;font-family:'Syne',sans-serif;cursor:pointer;padding:8px;">
+      ❓ Ou continuer le Quiz →
+    </button>
+
+  </div>
+</div>
+
+<!-- ===================== VIDEO 2 SCREEN ===================== -->
+<div id="screen-video2" class="screen">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;">
+
+    <div style="font-size:72px;margin-bottom:16px;animation:floatBounce 2s ease-in-out infinite;">🎬</div>
+    <h1 style="font-size:28px;font-weight:800;color:var(--rose);margin-bottom:8px;">Avant le stand de tir…</h1>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:32px;font-family:'Space Mono',monospace;">Un autre message spécial ! 🎯</p>
+
+    <a href="https://youtube.com/shorts/Bc6Haf7nu9k" target="_blank"
+      style="display:flex;flex-direction:column;align-items:center;gap:12px;
+      background:linear-gradient(135deg,#ff0000,#cc0000);
+      border-radius:24px;padding:28px 40px;
+      text-decoration:none;color:white;
+      box-shadow:0 8px 40px rgba(255,0,0,0.4);
+      margin-bottom:32px;max-width:320px;width:100%;
+      transition:transform 0.2s;"
+      onmouseover="this.style.transform='scale(1.03)'"
+      onmouseout="this.style.transform='scale(1)'">
+      <div style="font-size:52px;">▶️</div>
+      <div style="font-weight:800;font-size:18px;">Lancer la vidéo</div>
+      <div style="font-size:12px;opacity:0.85;">S'ouvre dans YouTube</div>
+    </a>
+
+    <p style="font-size:12px;color:var(--text2);margin-bottom:24px;font-style:italic;">
+      👆 Appuyez pour ouvrir · Revenez ensuite sur cette page
+    </p>
+
+    <button class="modal-btn" style="background:linear-gradient(135deg,var(--rose),#c4003d);box-shadow:0 4px 20px rgba(255,77,125,0.4);font-size:16px;padding:16px 36px;" onclick="showScreen('shoot')">
+      🎯 C'est parti pour le tir !
+    </button>
+
+  </div>
+</div>
+
+<!-- ===================== SHOOT SCREEN ===================== -->
+<div id="screen-shoot" class="screen">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;">
+
+    <div style="font-size:72px;animation:floatBounce 1.5s ease-in-out infinite;margin-bottom:16px;">🎯</div>
+    <h1 style="font-size:32px;font-weight:800;color:var(--rose);margin-bottom:8px;">Stand de Tir !</h1>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:24px;font-family:'Space Mono',monospace;">Visez juste, tirez fort 💥</p>
+
+    <!-- RÈGLES -->
+    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 20px;max-width:380px;width:100%;margin-bottom:20px;text-align:left;">
+      <p style="font-weight:800;color:var(--rose);margin-bottom:8px;font-size:14px;">📋 Règles</p>
+      <p style="font-size:13px;color:var(--text2);line-height:1.8;">
+        • Chaque équipe désigne <strong style="color:var(--text);">1 tireur</strong><br>
+        • <strong style="color:var(--text);">3 balles</strong> à lancer sur des cibles (bouteilles)<br>
+        • L'équipe qui renverse le <strong style="color:var(--text);">plus de cibles</strong> gagne<br>
+        • Distance : <strong style="color:var(--text);">3 à 5 mètres</strong><br>
+        • Égalité → 1 balle chacun en duel !
+      </p>
+    </div>
+
+    <!-- SAISIE DES POINTS -->
+    <div style="background:var(--card);border:2px solid var(--rose);border-radius:20px;padding:20px;max-width:380px;width:100%;margin-bottom:20px;">
+      <p style="font-weight:800;color:var(--rose);margin-bottom:4px;font-size:15px;">🏅 Saisir les points</p>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:16px;font-family:'Space Mono',monospace;">1er = 5 pts · 2ème = 3 pts · 3ème = 0 pt</p>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(255,77,125,0.08);border:1.5px solid rgba(255,77,125,0.3);border-radius:14px;padding:12px 14px;">
+          <div style="font-size:22px;">🌸</div>
+          <div style="flex:1;text-align:left;"><div style="font-size:12px;font-weight:800;color:var(--rose);">Équipe 1 — Simplet</div></div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="setShootPoints('rose', 5)" id="shoot-rose-5" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥇 5</button>
+            <button onclick="setShootPoints('rose', 3)" id="shoot-rose-3" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥈 3</button>
+            <button onclick="setShootPoints('rose', 0)" id="shoot-rose-0" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥉 0</button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(0,201,122,0.08);border:1.5px solid rgba(0,201,122,0.3);border-radius:14px;padding:12px 14px;">
+          <div style="font-size:22px;">🌿</div>
+          <div style="flex:1;text-align:left;"><div style="font-size:12px;font-weight:800;color:var(--vert);">Équipe 2 — Woke</div></div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="setShootPoints('vert', 5)" id="shoot-vert-5" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥇 5</button>
+            <button onclick="setShootPoints('vert', 3)" id="shoot-vert-3" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥈 3</button>
+            <button onclick="setShootPoints('vert', 0)" id="shoot-vert-0" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥉 0</button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(77,159,255,0.08);border:1.5px solid rgba(77,159,255,0.3);border-radius:14px;padding:12px 14px;">
+          <div style="font-size:22px;">🌊</div>
+          <div style="flex:1;text-align:left;"><div style="font-size:12px;font-weight:800;color:var(--bleu);">Équipe 3 — Alloc'</div></div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="setShootPoints('bleu', 5)" id="shoot-bleu-5" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥇 5</button>
+            <button onclick="setShootPoints('bleu', 3)" id="shoot-bleu-3" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥈 3</button>
+            <button onclick="setShootPoints('bleu', 0)" id="shoot-bleu-0" class="pts-btn" style="background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text2);cursor:pointer;">🥉 0</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:14px;padding:10px 14px;background:var(--card2);border-radius:10px;font-size:12px;font-family:'Space Mono',monospace;color:var(--text2);" id="shoot-summary">
+        En attente des résultats…
+      </div>
+    </div>
+
+    <button class="modal-btn" style="margin-bottom:12px;" onclick="showScreen('video3')">
+      🎬 Voir la vidéo suivante →
+    </button>
+  </div>
+</div>
+
+<!-- ===================== VIDEO 3 SCREEN ===================== -->
+<div id="screen-video3" class="screen">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;">
+
+    <div style="font-size:72px;margin-bottom:16px;animation:floatBounce 2s ease-in-out infinite;">🎬</div>
+    <h1 style="font-size:28px;font-weight:800;color:var(--violet);margin-bottom:8px;">Avant le quiz…</h1>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:32px;font-family:'Space Mono',monospace;">Encore un message ! ❓</p>
+
+    <a href="https://www.youtube.com/shorts/d46NulvW7cU" target="_blank"
+      style="display:flex;flex-direction:column;align-items:center;gap:12px;
+      background:linear-gradient(135deg,#ff0000,#cc0000);
+      border-radius:24px;padding:28px 40px;
+      text-decoration:none;color:white;
+      box-shadow:0 8px 40px rgba(255,0,0,0.4);
+      margin-bottom:32px;max-width:320px;width:100%;
+      transition:transform 0.2s;"
+      onmouseover="this.style.transform='scale(1.03)'"
+      onmouseout="this.style.transform='scale(1)'">
+      <div style="font-size:52px;">▶️</div>
+      <div style="font-weight:800;font-size:18px;">Lancer la vidéo</div>
+      <div style="font-size:12px;opacity:0.85;">S'ouvre dans YouTube</div>
+    </a>
+
+    <p style="font-size:12px;color:var(--text2);margin-bottom:24px;font-style:italic;">
+      👆 Appuyez pour ouvrir · Revenez ensuite sur cette page
+    </p>
+
+    <button class="modal-btn" style="background:linear-gradient(135deg,var(--violet),#7a3ac4);box-shadow:0 4px 20px rgba(155,93,229,0.4);font-size:16px;padding:16px 36px;" onclick="showQuiz()">
+      ❓ C'est parti pour le quiz !
+    </button>
+
+  </div>
+</div>
+
+<!-- ===================== ADMIN SCREEN ===================== -->
+<div id="screen-admin" class="screen">
+  <div class="admin-title">🎩 Maître du Jeu</div>
+
+  <div class="admin-card">
+    <h3>📋 Scores en temps réel</h3>
+    <div id="admin-scores"></div>
+  </div>
+
+  <div class="admin-card">
+    <h3>🔑 Solutions des 5 énigmes</h3>
+    <div style="font-family:'Space Mono',monospace;font-size:12px;line-height:2;color:var(--text2);">
+      <div>1. La Forêt-Fouesnant → <strong style="color:var(--vert)">16</strong> lettres</div>
+      <div>2. Labo fou → log₁₀(1M÷1) = <strong style="color:var(--vert)">6</strong> logs</div>
+      <div>3. Passions → (7+7+7)÷5 ≈ <strong style="color:var(--vert)">4</strong></div>
+      <div>4. Deux chemins → 11−5 = <strong style="color:var(--vert)">6</strong></div>
+      <div>5. Sakazakii → <strong style="color:var(--vert)">9</strong> lettres</div>
+      <div style="margin-top:10px;color:var(--or);font-weight:700;">CODE : 16 – 6 – 4 – 6 – 9</div>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <h3>🎯 Débloquer un indice pour une équipe</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <button class="admin-btn" onclick="adminUnlockClue('rose')">🌸 Rose</button>
+      <button class="admin-btn" onclick="adminUnlockClue('vert')">🌿 Verte</button>
+      <button class="admin-btn" onclick="adminUnlockClue('bleu')">🌊 Bleue</button>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <h3>⚠️ Actions</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <button class="admin-btn danger" onclick="resetGame()">🔄 Réinitialiser le jeu</button>
+      <button class="admin-btn" onclick="showScreen('qr')">📱 Voir QR codes</button>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- ===================== QR SCREEN ===================== -->
+<div id="screen-qr" class="screen">
+  <div class="qr-title">📱 QR Codes à imprimer</div>
+  <div class="qr-sub">Un QR code par équipe · Scanner = accès direct au jeu</div>
+  <div class="qr-grid" id="qr-grid"></div>
+  <button class="modal-btn" onclick="window.print()" style="margin-bottom:80px;">🖨️ Imprimer les QR codes</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav" style="display:none;">
+  <button class="nav-btn active-nav" id="nav-game" onclick="showScreen('game')">
+    <span class="nav-icon">🔍</span>Énigmes
+  </button>
+  <button class="nav-btn" id="nav-quiz" onclick="showQuiz()">
+    <span class="nav-icon">❓</span>Quiz
+  </button>
+  <button class="nav-btn" id="nav-admin" onclick="showScreen('admin')">
+    <span class="nav-icon">🎩</span>Admin
+  </button>
+  <button class="nav-btn" id="nav-qr" onclick="showScreen('qr')">
+    <span class="nav-icon">📱</span>QR Codes
+  </button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-emoji" id="modal-emoji">🎉</div>
+    <div class="modal-title" id="modal-title">Titre</div>
+    <div class="modal-text" id="modal-text">Texte</div>
+    <button class="modal-btn" id="modal-btn" onclick="closeModal()">OK !</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const CORRECT_ANSWERS = ['16', '6', '4', '6', '9'];
+const ANSWER_HINTS = [
+  'Combien de lettres dans "LaForêtFouesnant" (sans espaces ni tirets) ?',
+  'Combien de zéros dans 1 000 000 ? C\'est votre réponse !',
+  'COUTURE(7)+CRÉATIF(7)+CUISINE(7)=21 → 21÷5≈ ?',
+  'Chemin A: 11−5=? · Chemin B: 91−90+5=?',
+  'Comptez les lettres de "sakazakii" : s-a-k-a-z-a-k-i-i'
+];
+
+const TEAM_COLORS = { rose:'var(--rose)', vert:'var(--vert)', bleu:'var(--bleu)' };
+const TEAM_NAMES = { rose:'🌸 Équipe 1 — Simplet', vert:'🌿 Équipe 2 — Woke', bleu:"🌊 Équipe 3 — Alloc'" };
+const TEAM_CSS = { rose:'selected-rose', vert:'selected-vert', bleu:'selected-bleu' };
+
+let state = {
+  team: null,
+  currentEnigma: 0,
+  answers: ['','','','',''],
+  solved: [false,false,false,false,false],
+  quizAnswers: {},   // { questionIndex: true/false }
+  score: 0,          // énigmes uniquement (1 pt chacune)
+  quizScore: 0,      // quiz (0.385 pt chacune)
+  startTime: null,
+  timerInterval: null,
+  gameStarted: false,
+};
+
+// Shared scores across teams (simulated via localStorage)
+let teamScores = { rose:0, vert:0, bleu:0 };
+let teamProgress = { rose:0, vert:0, bleu:0 };
+let teamFinished = { rose:false, vert:false, bleu:false };
+
+function loadSharedState() {
+  try {
+    const s = sessionStorage.getItem('noella_scores');
+    if(s) { const d = JSON.parse(s); teamScores=d.scores||teamScores; teamProgress=d.progress||teamProgress; teamFinished=d.finished||teamFinished; }
+  } catch(e){}
+}
+function saveSharedState() {
+  try { sessionStorage.setItem('noella_scores', JSON.stringify({scores:teamScores,progress:teamProgress,finished:teamFinished})); } catch(e){}
+}
+
+// ============================================================
+// TEAM SELECTION
+// ============================================================
+function selectTeam(team, el) {
+  state.team = team;
+  document.querySelectorAll('.team-btn').forEach(b => b.className='team-btn');
+  if(el) el.classList.add(TEAM_CSS[team]);
+  document.getElementById('start-btn').classList.add('visible');
+}
+
+function startGame() {
+  if(!state.team) return;
+  loadSharedState();
+  state.startTime = Date.now();
+  state.gameStarted = true;
+  startTimer();
+  renderEnigma(0);
+  updateTopbar();
+  showScreen('game');
+  document.getElementById('bottom-nav').style.display='flex';
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer() {
+  state.timerInterval = setInterval(updateTimer, 1000);
+}
+function updateTimer() {
+  if(!state.startTime) return;
+  const elapsed = Math.floor((Date.now()-state.startTime)/1000);
+  const total = 30*60;
+  const remaining = Math.max(0, total-elapsed);
+  const m = Math.floor(remaining/60).toString().padStart(2,'0');
+  const s = (remaining%60).toString().padStart(2,'0');
+  const el = document.getElementById('timer-display');
+  el.textContent = m+':'+s;
+  el.className = 'timer-display' + (remaining < 300 ? ' warning' : '');
+}
+function getElapsedFormatted() {
+  if(!state.startTime) return '00:00';
+  const elapsed = Math.floor((Date.now()-state.startTime)/1000);
+  const m = Math.floor(elapsed/60).toString().padStart(2,'0');
+  const s = (elapsed%60).toString().padStart(2,'0');
+  return m+':'+s;
+}
+
+// ============================================================
+// ENIGMAS DATA
+// ============================================================
+function getEnigmaHTML(i) {
+  const colors = ['var(--rose)','var(--vert)','var(--bleu)','var(--violet)','var(--or)'];
+  const bgColors = [
+    'rgba(255,77,125,0.15)','rgba(0,201,122,0.15)',
+    'rgba(77,159,255,0.15)','rgba(155,93,229,0.15)','rgba(255,184,48,0.15)'
+  ];
+  const titles = [
+    'Le Chalet devant la Mer',
+    'Le Labo Fou de NoNo',
+    'Les Passions de NoNo',
+    'Deux Chemins, Un Destin',
+    'Le Retour au Labo Fou !'
+  ];
+  const subtitles = [
+    'Énigme 1 / 5 — Lieu de vie',
+    'Énigme 2 / 5 — Sciences & Microbiologie',
+    'Énigme 3 / 5 — Passions',
+    'Énigme 4 / 5 — Dates & Calculs',
+    'Énigme 5 / 5 — Dernière mission !'
+  ];
+  const emojis = ['🌊','⚗️','🧵','💑','🦠'];
+
+  const bodies = [
+    // ÉNIGME 1
+    `<p class="enigma-text">
+      🌲🌊 <strong>Voici votre première énigme !</strong><br><br>
+      Noella a vécu dans un endroit magique : un <strong>chalet face à la mer</strong>, 
+      niché dans une forêt du <strong>sud du Finistère</strong>, en Bretagne.<br><br>
+      Ce lieu porte le nom d'une commune connue pour ses plages et sa forêt littorale. 
+      Elle se situe près de Concarneau, entre mer et pins maritimes.<br><br>
+      🔢 <strong>Comptez le nombre de lettres de cette commune</strong> (sans espaces ni tirets).<br>
+      Ce chiffre est la <strong>1ʳᵉ partie de votre code.</strong>
+    </p>`,
+
+    // ÉNIGME 2
+    `<div class="lab-card">
+      <div class="lab-card-title">⚗️ LABO FOU DE NONO — RAPPORT D'ANALYSE N°2605 ⚗️</div>
+      <div style="background:rgba(0,201,122,0.05);border-radius:8px;padding:10px;margin-bottom:10px;font-size:11px;color:var(--text2);font-style:italic;border:1px dashed rgba(0,201,122,0.2);">
+        "Mayday ! Le Dr. NoNo a renversé un flacon dans son labo fou… voici les données !"
+      </div>
+      <div class="lab-grid">
+        <div class="lab-item">📋 <strong>Échantillon :</strong><br>Culture bactérienne</div>
+        <div class="lab-item">🔬 <strong>Conc. initiale :</strong><br>1 000 000 UFC/mL</div>
+        <div class="lab-item">⚗️ <strong>Après traitement :</strong><br>1 UFC/mL</div>
+        <div class="lab-item">📐 <strong>Formule :</strong><br>log₁₀(Ci ÷ Cf)</div>
+      </div>
+    </div>
+    <p class="enigma-text">🧮 Calculez le nombre de <strong>réductions décimales (logs)</strong> pour passer de la concentration initiale à la concentration finale.<br><br>
+    <span style="font-family:'Space Mono',monospace;background:var(--card2);padding:6px 12px;border-radius:8px;display:inline-block;margin-top:4px;">log₁₀( 1 000 000 ÷ 1 ) = ?</span></p>`,
+
+    // ÉNIGME 3
+    `<p class="enigma-text">
+      🧵 <strong>Troisième défi !</strong><br><br>
+      NoNo adore 3 choses dans la vie. Trouvez les mots correspondants :<br><br>
+      🔹 <strong>A.</strong> Art de transformer un tissu en vêtement à la main ou à la machine. <em>(7 lettres)</em><br>
+      🔹 <strong>B.</strong> Activité créative : scrapbooking, bijoux, déco… <em>(format : "loisir ___________")</em><br>
+      🔹 <strong>C.</strong> Art de préparer des plats et régaler les papilles ! <em>(7 lettres)</em><br><br>
+      Additionnez les lettres des 3 mots (A+B+C), puis <strong>divisez par 5</strong> (arrondi).<br>
+      Ce résultat est la <strong>3ᵉ partie du code.</strong>
+    </p>`,
+
+    // ÉNIGME 4
+    `<p class="enigma-text">💑 <strong>Deux options, un seul résultat !</strong><br>Choisissez votre chemin… mais les deux mènent au même chiffre.</p>
+    <div class="two-paths">
+      <div class="path-card path-a">
+        <div class="path-title">🌸 CHEMIN A<br><small style="font-weight:400;font-size:10px;">La différence des mois</small></div>
+        <p style="font-size:12px;">Prenez le <strong>mois de naissance du conjoint</strong> de NoNo.<br>Soustrayez le <strong>mois de naissance de NoNo</strong>.</p>
+        <div class="path-formula">Mois conjoint − Mois NoNo = ?</div>
+        <div class="path-hint">NoNo est née en mai (5). Son conjoint est né en novembre…</div>
+      </div>
+      <div class="path-card path-b">
+        <div class="path-title">💜 CHEMIN B<br><small style="font-weight:400;font-size:10px;">Le calcul des années</small></div>
+        <p style="font-size:12px;">2 derniers chiffres de l'année du conjoint<br>− 2 derniers chiffres de l'année de NoNo<br>+ mois de naissance de NoNo</p>
+        <div class="path-formula">91 − 90 + 5 = ?</div>
+        <div class="path-hint">NoNo née en 1990, conjoint en 1991. Elle est née en mai.</div>
+      </div>
+    </div>`,
+
+    // ÉNIGME 5
+    `<div class="lab-card">
+      <div class="lab-card-title">🦠 LABO FOU DE NONO — AVIS DE RECHERCHE 🦠</div>
+      <div style="background:rgba(255,77,125,0.08);border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--rose);font-style:italic;border:1px dashed rgba(255,77,125,0.2);">
+        "NoNo a fait tomber une boîte de Petri… une bactérie s'est échappée ! Voici ses aveux :"
+      </div>
+      <div class="lab-grid">
+        <div class="lab-item">🔬 <strong>Gram :</strong> Négatif</div>
+        <div class="lab-item">🌡️ <strong>Temp. préférée :</strong> 37°C</div>
+        <div class="lab-item">🏃 <strong>Mobilité :</strong> Oui (flagelles !)</div>
+        <div class="lab-item">🥚 <strong>Sporulation :</strong> Non</div>
+        <div class="lab-item">🍼 <strong>Danger :</strong> Nourrissons</div>
+        <div class="lab-item">🔢 <strong>Souche :</strong> ATCC 29544</div>
+        <div class="lab-item" style="grid-column:span 2">🏷️ <strong>Ancien nom :</strong> Enterobacter sakazakii · Famille : Enterobacteriaceae</div>
+      </div>
+    </div>
+    <p class="enigma-text">🧩 Identifiez cette bactérie (genre + espèce), puis <strong>comptez les lettres du nom d'espèce uniquement</strong>.<br>Ce chiffre est la <strong>5ᵉ et dernière partie de votre code !</strong></p>`
+  ];
+
+  const solved = state.solved[i];
+
+  return `
+  <div class="enigma-card">
+    <div class="enigma-card-header">
+      <div class="enigma-num-badge" style="background:${bgColors[i]};color:${colors[i]};">
+        ${emojis[i]}
+      </div>
+      <div>
+        <div class="enigma-card-title">${titles[i]}</div>
+        <div class="enigma-card-subtitle">${subtitles[i]}</div>
+      </div>
+    </div>
+    <div class="enigma-body">
+      ${bodies[i]}
+
+      ${!solved ? `
+      <div class="answer-section">
+        <div class="answer-label">▸ Votre réponse</div>
+        <input class="answer-input" id="input-${i}" type="text" inputmode="numeric"
+          placeholder="?" maxlength="4"
+          value="${state.answers[i]}"
+          onchange="state.answers[${i}]=this.value.trim()"
+          oninput="state.answers[${i}]=this.value.trim()"
+        />
+        <button class="validate-btn" onclick="validateAnswer(${i})">✓ Valider ma réponse</button>
+        ${i < 4 ? `<button onclick="goToEnigma(${i+1})" style="width:100%;margin-top:8px;background:var(--card2);border:1.5px solid var(--border);border-radius:14px;padding:12px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;">⏭️ Passer cette énigme</button>` : ''}
+        <div class="feedback-msg" id="feedback-${i}"></div>
+      </div>
+      ` : `
+      <div style="background:rgba(0,201,122,0.1);border:1.5px solid var(--vert);border-radius:12px;padding:14px;text-align:center;margin-top:12px;">
+        <div style="font-size:28px;margin-bottom:6px;">✅</div>
+        <div style="font-weight:800;color:var(--vert);font-size:15px;">Énigme résolue !</div>
+        <div style="font-family:'Space Mono',monospace;color:var(--vert);font-size:22px;font-weight:700;margin-top:6px;">${CORRECT_ANSWERS[i]}</div>
+        ${i < 4 ? `<button class="validate-btn modal-btn-green" style="margin-top:12px;" onclick="goToEnigma(${i+1})">Énigme suivante →</button>` : ''}
+      </div>
+      `}
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderEnigma(i) {
+  state.currentEnigma = i;
+  document.getElementById('enigma-container').innerHTML = getEnigmaHTML(i);
+  updateProgress();
+  updateCodeDigits();
+}
+
+function updateProgress() {
+  for(let i=0;i<5;i++) {
+    const el = document.getElementById('step-'+i);
+    if(!el) continue;
+    el.className = 'progress-step';
+    if(state.solved[i]) el.classList.add('done');
+    else if(i===state.currentEnigma) el.classList.add('current');
+  }
+}
+
+function updateCodeDigits() {
+  for(let i=0;i<5;i++) {
+    const el = document.getElementById('digit-'+i);
+    if(!el) continue;
+    if(state.solved[i]) {
+      el.textContent = CORRECT_ANSWERS[i];
+      el.classList.add('filled');
+    } else {
+      el.textContent = '?';
+      el.classList.remove('filled');
+    }
+  }
+}
+
+function updateTopbar() {
+  const t = state.team;
+  const el = document.getElementById('topbar-team');
+  if(el) {
+    el.textContent = TEAM_NAMES[t];
+    el.style.borderColor = TEAM_COLORS[t];
+    el.style.color = TEAM_COLORS[t];
+  }
+  document.getElementById('score-display').textContent = state.score;
+}
+
+// ============================================================
+// VALIDATE
+// ============================================================
+function validateAnswer(i) {
+  const input = document.getElementById('input-'+i);
+  const feedback = document.getElementById('feedback-'+i);
+  const val = (input.value||'').trim();
+
+  if(!val) { showFeedback(i,'⚠️ Entre une réponse !','ko'); return; }
+
+  if(val === CORRECT_ANSWERS[i]) {
+    input.classList.add('correct');
+    input.classList.remove('wrong');
+    state.solved[i] = true;
+    state.answers[i] = val;
+    state.score = state.solved.filter(Boolean).length; // 1 pt par énigme
+    updateScoreDisplay();
+
+    // Update shared
+    teamScores[state.team] = getTotalScore();
+    teamProgress[state.team] = state.solved.filter(Boolean).length;
+    saveSharedState();
+
+    const successMsgs = [
+      '🔥 BOOOM ! Trop forts les champions !',
+      '🧠 Génie absolu ! Dimitri tremble dans sa cachette !',
+      '🎯 EN PLEIN DANS LE MILLE ! Vous êtes des monstres !',
+      '🥳 OUI OUI OUI ! Le gâteau se rapproche !',
+      '💪 INCROYABLE ! NoNo serait fière de vous !',
+      '🚀 CORRECT ! Vous déchirez tout !',
+      '👑 Magnifique ! Les autres équipes sont KO !',
+      '🤩 PARFAIT ! Même le Dr. NoNo applaudit !',
+    ];
+    const msg = successMsgs[Math.floor(Math.random()*successMsgs.length)];
+    showFeedback(i, msg, 'ok');
+
+    triggerConfetti();
+
+    if(state.solved.every(Boolean)) {
+      setTimeout(()=>showVictory(), 800);
+    } else {
+      setTimeout(()=>renderEnigma(i), 600);
+    }
+  } else {
+    input.classList.add('wrong');
+    input.classList.remove('correct');
+    const funnyMsgs = [
+      '😂 PAS DU TOUT ! T\'es vraiment trop nul… Recommence NOOB !',
+      '🤣 FAUX ! Même Dimitri ferait mieux que toi !',
+      '💀 OH NON… C\'est une blague là ? Réessaie petit génie !',
+      '🫵 HAHAHAHA ! NoNo aurait trouvé en 2 secondes !',
+      '🥴 Sérieusement ?? C\'est FAUX ! Retourne à l\'école !',
+      '😭 Mauvaise réponse ! Le gâteau pleure dans sa cachette…',
+      '🤡 WRONG ! Dimitri se marre depuis sa planque !',
+      '💅 Non non non… Essaie encore, chéri·e !',
+      '🧠 Cerveau introuvable… Réessaie !',
+      '😤 RATÉ ! C\'est pas si dur pourtant !',
+    ];
+    const msg = funnyMsgs[Math.floor(Math.random()*funnyMsgs.length)];
+    showFeedback(i, msg, 'ko');
+    setTimeout(()=>{ input.classList.remove('wrong'); },500);
+  }
+}
+
+function showFeedback(i, msg, type) {
+  const el = document.getElementById('feedback-'+i);
+  if(!el) return;
+  el.textContent = msg;
+  el.className = `feedback-msg show ${type}`;
+}
+
+function goToEnigma(i) {
+  renderEnigma(i);
+  document.querySelector('.enigma-wrap').scrollIntoView({behavior:'smooth'});
+}
+
+// ============================================================
+// NEXT ACTIVITY TRANSITION
+// ============================================================
+function showNextActivity() {
+  showScreen('sackrace');
+}
+
+// Points activités (gérés par le MdJ sur son téléphone)
+let activityPoints = {
+  sack: { rose: null, vert: null, bleu: null },
+  shoot: { rose: null, vert: null, bleu: null },
+};
+
+function setSackPoints(team, pts) {
+  activityPoints.sack[team] = pts;
+  // Highlight bouton sélectionné
+  ['rose','vert','bleu'].forEach(t => {
+    [5,3,0].forEach(p => {
+      const btn = document.getElementById(`sack-${t}-${p}`);
+      if(!btn) return;
+      if(t === team && p === pts) {
+        btn.style.background = 'rgba(255,184,48,0.25)';
+        btn.style.borderColor = 'var(--or)';
+        btn.style.color = 'var(--or)';
+      } else if(t === team) {
+        btn.style.background = 'rgba(255,255,255,0.05)';
+        btn.style.borderColor = 'var(--border)';
+        btn.style.color = 'var(--text2)';
+      }
+    });
+  });
+  updateActivitySummary('sack');
+}
+
+function setShootPoints(team, pts) {
+  activityPoints.shoot[team] = pts;
+  ['rose','vert','bleu'].forEach(t => {
+    [5,3,0].forEach(p => {
+      const btn = document.getElementById(`shoot-${t}-${p}`);
+      if(!btn) return;
+      if(t === team && p === pts) {
+        btn.style.background = 'rgba(255,77,125,0.25)';
+        btn.style.borderColor = 'var(--rose)';
+        btn.style.color = 'var(--rose)';
+      } else if(t === team) {
+        btn.style.background = 'rgba(255,255,255,0.05)';
+        btn.style.borderColor = 'var(--border)';
+        btn.style.color = 'var(--text2)';
+      }
+    });
+  });
+  updateActivitySummary('shoot');
+}
+
+function updateActivitySummary(activity) {
+  const el = document.getElementById(`${activity}-summary`);
+  if(!el) return;
+  const p = activityPoints[activity];
+  const names = { rose:'Simplet', vert:'Woke', bleu:"Alloc'" };
+  const filled = Object.values(p).filter(v => v !== null).length;
+  if(filled === 0) { el.textContent = 'En attente des résultats…'; return; }
+  el.innerHTML = Object.entries(p).map(([t, pts]) => {
+    if(pts === null) return `<span style="color:var(--text2);">${names[t]} : —</span>`;
+    const medal = pts===5?'🥇':pts===3?'🥈':'🥉';
+    const color = pts===5?'var(--or)':pts===3?'#aaa':'#a0522d';
+    return `<span style="color:${color};font-weight:700;">${medal} ${names[t]} : ${pts} pts</span>`;
+  }).join(' &nbsp;|&nbsp; ');
+}
+
+
+function getTotalScore() {
+  return parseFloat((state.score + state.quizScore).toFixed(2));
+}
+function updateScoreDisplay() {
+  document.getElementById('score-display').textContent = getTotalScore().toFixed(2);
+}
+
+// ============================================================
+// QUIZ 13 QUESTIONS
+// ============================================================
+const QUIZ_QUESTIONS = [
+  { q:'🚴 Q1 — Quelle était la dernière sortie entre copines de Noella ?', options:['Week-end spa','Camping & vélo dans le Morbihan','Concert','Soirée restaurant'], correct:1 },
+  { q:'💼 Q2 — À quel moment Noella a-t-elle quitté son travail ?', options:['Début avril','Début mai','Fin mai','En mars'], correct:1 },
+  { q:'✈️ Q3 — Quelle sera probablement la prochaine destination voyage de Noella ?', options:['Islande','Portugal','Canada','Japon'], correct:2 },
+  { q:'🍞 Q4 — Quelle est la passion culinaire du moment de Noella ?', options:['Les sushis','La pâtisserie','Le pain maison','Les smoothies'], correct:2 },
+  { q:'📱 Q5 — Quelle appli Noella ouvre-t-elle le plus souvent en ce moment ?', options:['Instagram','TikTok','Pinterest','Weward'], correct:3 },
+  { q:'😅 Q6 — Quel est le plus gros défaut de Noella selon ses amis ?', options:null, correct:null, libre:true }, // réponse libre avec texte
+  { q:'🎂 Q7 — Noella n\'a pas pu faire le gâteau… qui est le coupable ? 👀', options:null, correct:null }, // réponse libre
+  { q:'🌍 Q8 — Dans quelle ville Noella est-elle née ?', options:['Brest','Quimper','Lorient','Vannes'], correct:1 },
+  { q:'🎓 Q9 — Où Noella a-t-elle fait son IUT de Biotechnologie ?', options:['Brest','Quimper','Rennes','Nantes'], correct:1 },
+  { q:'💑 Q10 — Comment Noella et son chéri se sont-ils rencontrés ?', options:['Appli de rencontre','Via des amis','Au travail','En soirée'], correct:2 },
+  { q:'🎬 Q11 — Quel était le premier film vu au cinéma ensemble ?', options:['Fast & Furious 8','Tunnel','Spider-Man','La La Land'], correct:1 },
+  { q:'📅 Q12 — À quelle date ont-ils vu ce film ?', options:['14/02/2017','01/01/2018','20/05/2017','15/06/2016'], correct:2 },
+  { q:'🎂 Q13 — Quel âge Noella fête-t-elle aujourd\'hui ?', options:['34 ans','35 ans','36 ans','37 ans'], correct:2 },
+];
+
+function showQuiz() {
+  showScreen('quiz');
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  if(!container) return;
+  let html = '';
+
+  QUIZ_QUESTIONS.forEach((q, i) => {
+    const answered = state.quizAnswers[i] !== undefined;
+    const isLibre = q.options === null;
+    const isTexte = q.libre === true;
+    const savedText = (state.quizTexts && state.quizTexts[i]) ? state.quizTexts[i] : '';
+
+    html += '<div class="quiz-card" id="quiz-card-' + i + '">';
+    html += '<div class="quiz-q-text">' + q.q + '</div>';
+
+    if(isTexte) {
+      html += '<div class="quiz-libre">';
+      html += '<div style="font-size:11px;color:var(--text2);font-style:italic;margin-bottom:8px;">✍️ Chaque équipe écrit sa réponse — à lire à voix haute !</div>';
+      html += '<input type="text" placeholder="Note la réponse ici…" value="' + savedText.replace(/"/g,'&quot;') + '" oninput="saveQuizText(' + i + ', this.value)" style="width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-family:Syne,sans-serif;font-size:13px;color:var(--text);outline:none;" />';
+      if(!answered) {
+        html += '<div style="display:flex;gap:8px;margin-top:8px;">';
+        html += '<button class="quiz-opt-btn" style="background:rgba(0,201,122,0.15);border-color:var(--vert);color:var(--vert);" onclick="answerQuiz(' + i + ', true)">✅ Bonne réponse</button>';
+        html += '<button class="quiz-opt-btn" style="background:rgba(255,77,125,0.15);border-color:var(--rose);color:var(--rose);" onclick="answerQuiz(' + i + ', false)">❌ Mauvaise</button>';
+        html += '</div>';
+      } else {
+        const ok = state.quizAnswers[i] === true;
+        html += '<div style="margin-top:6px;font-size:12px;font-weight:700;color:' + (ok ? 'var(--vert)' : 'var(--text2)') + ';">' + (ok ? '✅ +0.385 pt' : '➖ 0 pt') + '</div>';
+      }
+      html += '</div>';
+
+    } else if(isLibre) {
+      html += '<div class="quiz-libre">';
+      html += '<div style="font-size:12px;color:var(--text2);font-style:italic;">✍️ Réponse libre — le Maître du Jeu tranche !</div>';
+      if(!answered) {
+        html += '<div style="display:flex;gap:8px;margin-top:8px;">';
+        html += '<button class="quiz-opt-btn" style="background:rgba(0,201,122,0.15);border-color:var(--vert);color:var(--vert);" onclick="answerQuiz(' + i + ', true)">✅ Bonne réponse</button>';
+        html += '<button class="quiz-opt-btn" style="background:rgba(255,77,125,0.15);border-color:var(--rose);color:var(--rose);" onclick="answerQuiz(' + i + ', false)">❌ Mauvaise</button>';
+        html += '</div>';
+      } else {
+        const ok = state.quizAnswers[i] === true;
+        html += '<div style="margin-top:8px;font-size:12px;font-weight:700;color:' + (ok ? 'var(--vert)' : 'var(--text2)') + ';">' + (ok ? '✅ +0.385 pt' : '➖ 0 pt') + '</div>';
+      }
+      html += '</div>';
+
+    } else {
+      html += '<div class="quiz-options-grid">';
+      q.options.forEach((opt, j) => {
+        let style = '';
+        if(answered) {
+          if(j === q.correct) style = 'background:rgba(0,201,122,0.15);border-color:var(--vert);color:var(--vert);';
+          else if(state.quizAnswers[i] === j) style = 'background:rgba(255,77,125,0.15);border-color:var(--rose);color:var(--rose);';
+        }
+        html += '<button class="quiz-opt-btn" style="' + style + '" ' + (answered ? 'disabled' : '') + ' onclick="answerQuiz(' + i + ', ' + j + ')">' + opt + '</button>';
+      });
+      html += '</div>';
+      if(answered) {
+        const ok = state.quizAnswers[i] === q.correct;
+        html += '<div style="margin-top:6px;font-size:12px;font-weight:700;color:' + (ok ? 'var(--vert)' : 'var(--rose)') + ';">' + (ok ? '✅ +0.385 pt' : '❌ 0 pt') + '</div>';
+      }
+    }
+
+    html += '</div>';
+  });
+
+  // BOUTON RÉCAP EN BAS
+  const answered = Object.keys(state.quizAnswers).length;
+  html += '<div style="background:var(--card);border:2px solid var(--violet);border-radius:20px;padding:20px;text-align:center;margin-top:8px;">';
+  html += '<div style="font-size:28px;margin-bottom:8px;">🏆</div>';
+  html += '<h3 style="font-size:16px;font-weight:800;color:var(--violet);margin-bottom:6px;">Classement Général</h3>';
+  html += '<p style="font-size:12px;color:var(--text2);margin-bottom:14px;">' + answered + ' / 13 questions répondues · ' + state.quizScore.toFixed(2) + ' pts quiz</p>';
+  html += '<button class="modal-btn" style="background:linear-gradient(135deg,var(--violet),var(--rose));box-shadow:0 4px 20px rgba(155,93,229,0.4);" onclick="showGlobalRecap()">🏆 Voir le classement général</button>';
+  html += '</div>';
+
+  container.innerHTML = html;
+  updateQuizScore();
+}
+
+function showGlobalRecap() {
+  const teams = [
+    { key:'rose', name:'🌸 Simplet' },
+    { key:'vert', name:'🌿 Woke' },
+    { key:'bleu', name:"🌊 Alloc'" },
+  ];
+
+  // Calcul des scores quiz par équipe (on a seulement les données de l'équipe courante)
+  const currentQuiz = state.quizScore.toFixed(2);
+  const currentEnigmes = state.score;
+
+  const rows = teams.map(t => {
+    const enigmes = t.key === state.team ? currentEnigmes : (teamScores[t.key] || 0);
+    const quiz = t.key === state.team ? parseFloat(currentQuiz) : 0;
+    const sack = activityPoints.sack[t.key] !== null ? activityPoints.sack[t.key] : '—';
+    const shoot = activityPoints.shoot[t.key] !== null ? activityPoints.shoot[t.key] : '—';
+    const sackNum = activityPoints.sack[t.key] !== null ? activityPoints.sack[t.key] : 0;
+    const shootNum = activityPoints.shoot[t.key] !== null ? activityPoints.shoot[t.key] : 0;
+    const total = enigmes + quiz + sackNum + shootNum;
+
+    return { ...t, enigmes, quiz, sack, shoot, total };
+  }).sort((a,b) => b.total - a.total);
+
+  const medals = ['🥇','🥈','🥉'];
+
+  const tableHTML = `
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;font-family:'Space Mono',monospace;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);">
+            <th style="padding:8px 6px;text-align:left;color:var(--text2);">Équipe</th>
+            <th style="padding:8px 4px;text-align:center;color:var(--rose);">🔍</th>
+            <th style="padding:8px 4px;text-align:center;color:var(--violet);">❓</th>
+            <th style="padding:8px 4px;text-align:center;color:var(--or);">🥔</th>
+            <th style="padding:8px 4px;text-align:center;color:var(--vert);">🎯</th>
+            <th style="padding:8px 4px;text-align:center;color:var(--or);font-weight:800;">∑</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((r, i) => `
+            <tr style="border-bottom:1px solid var(--border);${i===0?'background:rgba(255,184,48,0.08);':''}">
+              <td style="padding:8px 6px;font-weight:700;">${medals[i]} ${r.name}</td>
+              <td style="padding:8px 4px;text-align:center;">${r.enigmes}</td>
+              <td style="padding:8px 4px;text-align:center;">${r.quiz}</td>
+              <td style="padding:8px 4px;text-align:center;">${r.sack}</td>
+              <td style="padding:8px 4px;text-align:center;">${r.shoot}</td>
+              <td style="padding:8px 4px;text-align:center;font-weight:800;color:var(--or);">${r.total.toFixed(2)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      <div style="margin-top:10px;font-size:10px;color:var(--text2);text-align:left;line-height:1.8;">
+        🔍 Énigmes (max 5) · ❓ Quiz (max ~5) · 🥔 Sac à patates · 🎯 Stand de tir
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:var(--text2);">
+        ⚠️ Les scores quiz des autres équipes ne s'affichent que sur leur téléphone.
+      </div>
+    </div>`;
+
+  showModal('🏆', 'Classement Général', tableHTML, '🎊 Félicitations !');
+}
+
+function saveQuizText(i, val) {
+  if(!state.quizTexts) state.quizTexts = {};
+  state.quizTexts[i] = val;
+}
+
+function answerQuiz(i, answer) {
+  if(state.quizAnswers[i] !== undefined) return;
+  const q = QUIZ_QUESTIONS[i];
+  let correct = false;
+  if(q.options === null) {
+    correct = (answer === true);
+  } else {
+    correct = (answer === q.correct);
+  }
+  state.quizAnswers[i] = answer;
+  if(correct) {
+    state.quizScore = parseFloat((Object.values(state.quizAnswers).filter((a,idx) => {
+      const qq = QUIZ_QUESTIONS[idx];
+      if(qq.options === null) return a === true;
+      return a === qq.correct;
+    }).length * 0.385).toFixed(2));
+  }
+  teamScores[state.team] = getTotalScore();
+  saveSharedState();
+  updateScoreDisplay();
+  renderQuiz();
+}
+
+function updateQuizScore() {
+  const el = document.getElementById('quiz-score-display');
+  if(el) el.textContent = state.quizScore.toFixed(2);
+  const answered = Object.keys(state.quizAnswers).length;
+  const el2 = document.getElementById('quiz-progress');
+  if(el2) el2.textContent = `${answered} / 13 répondues`;
+}
+
+// ============================================================
+// BONUS
+// ============================================================
+
+// ============================================================
+// VICTORY
+// ============================================================
+function showVictory() {
+  clearInterval(state.timerInterval);
+  teamFinished[state.team] = true;
+  teamScores[state.team] = state.score;
+  saveSharedState();
+
+  document.getElementById('victory-title').textContent = `🏆 ${TEAM_NAMES[state.team]} a gagné !`;
+  document.getElementById('victory-sub').textContent = `Code trouvé en ${getElapsedFormatted()} · Score énigmes : ${state.score} pts · Quiz : ${state.quizScore.toFixed(2)} pts`;
+
+  // Build scoreboard
+  const rows = Object.entries(teamScores).sort((a,b)=>b[1]-a[1]);
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('scoreboard-rows').innerHTML = rows.map((r,i)=>`
+    <div class="score-row">
+      <span class="score-rank">${medals[i]||'  '}</span>
+      <span class="score-team">${TEAM_NAMES[r[0]]}</span>
+      <span class="score-pts">${r[1]} pts</span>
+    </div>
+  `).join('');
+
+  showScreen('victory');
+  triggerConfetti();
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function triggerConfetti() {
+  const colors = ['#ff4d7d','#ffb830','#00c97a','#4d9fff','#9b5de5'];
+  for(let i=0;i<40;i++) {
+    const el = document.createElement('div');
+    el.className='confetti-piece';
+    el.style.left = Math.random()*100+'vw';
+    el.style.top = '-10px';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDelay = Math.random()*2+'s';
+    el.style.animationDuration = (2+Math.random()*2)+'s';
+    el.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 4000);
+  }
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function showModal(emoji,title,text,btnText) {
+  document.getElementById('modal-emoji').textContent=emoji;
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-text').innerHTML=text;
+  document.getElementById('modal-btn').textContent=btnText||'OK !';
+  document.getElementById('modal-btn').onclick=closeModal;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showScreen(name) {
+  const screens = ['welcome','game','victory','admin','qr','quiz','sackrace','shoot','video','video2','video3'];
+  screens.forEach(s=>{
+    const el = document.getElementById('screen-'+s);
+    if(el) el.classList.toggle('active', s===name);
+  });
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active-nav'));
+  const nb = document.getElementById('nav-'+name);
+  if(nb) nb.classList.add('active-nav');
+
+  if(name==='admin') renderAdminScores();
+  if(name==='qr') renderQRCodes();
+  if(name==='quiz') {
+    const el = document.getElementById('quiz-topbar-team');
+    if(el && state.team) { el.textContent = TEAM_NAMES[state.team]; el.style.color = TEAM_COLORS[state.team]; }
+    renderQuiz();
+  }
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function renderAdminScores() {
+  loadSharedState();
+  document.getElementById('admin-scores').innerHTML = Object.entries(TEAM_NAMES).map(([k,v])=>`
+    <div class="team-score-row">
+      <span style="font-weight:700;">${v}</span>
+      <span style="font-family:'Space Mono',monospace;color:var(--or);">${teamScores[k]||0} pts · ${teamProgress[k]||0}/5 énigmes</span>
+    </div>
+  `).join('');
+}
+
+function resetGame() {
+  if(!confirm('Réinitialiser tout le jeu ?')) return;
+  sessionStorage.removeItem('noella_scores');
+  location.reload();
+}
+
+// ============================================================
+// QR CODES
+// ============================================================
+function renderQRCodes() {
+  const base = window.location.href.split('?')[0];
+  const teams = [
+    { id:'admin', name:'🎩 Maître du Jeu', color:'#9b5de5', url: base, label:'Accès complet (Admin + Scores)', badge:'ADMIN' },
+    { id:'rose', name:'🌸 Équipe 1 — Simplet', color:'#ff4d7d', url: base+'?team=rose', label:'Accès joueur uniquement', badge:null },
+    { id:'vert', name:'🌿 Équipe 2 — Woke', color:'#00c97a', url: base+'?team=vert', label:'Accès joueur uniquement', badge:null },
+    { id:'bleu', name:"🌊 Équipe 3 — Alloc'", color:'#4d9fff', url: base+'?team=bleu', label:'Accès joueur uniquement', badge:null },
+  ];
+
+  document.getElementById('qr-grid').innerHTML = teams.map(t=>`
+    <div class="qr-card" style="border-color:${t.color}40;${t.badge?'border-width:2px;border-style:solid;':''}">
+      <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+        <h3 style="color:${t.color};">${t.name}</h3>
+        ${t.badge ? '<span style="background:'+t.color+';color:white;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;letter-spacing:1px;">'+t.badge+'</span>' : ''}
+      </div>
+      <div style="font-size:10px;color:#999;margin-bottom:4px;">${t.label}</div>
+      <div class="qr-code-wrap" id="qr-${t.id}"></div>
+      <div class="qr-url">${t.url}</div>
+    </div>
+  `).join('');
+
+  teams.forEach(t=>{
+    try {
+      new QRCode(document.getElementById('qr-'+t.id), {
+        text: t.url, width:136, height:136,
+        colorDark:'#000000', colorLight:'#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(e) {
+      document.getElementById('qr-'+t.id).innerHTML=`<div style="font-size:10px;color:#999;padding:8px;">${t.url}</div>`;
+    }
+  });
+}
+
+// ============================================================
+// AUTO-SELECT TEAM FROM URL
+// ============================================================
+(function autoSelectFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const t = params.get('team');
+
+  const badge = document.getElementById('version-badge');
+
+  if(t && ['rose','vert','bleu'].includes(t)) {
+    // Version joueur — indique l'équipe
+    const teamInfo = {
+      rose: { name:'Équipe 1 — Simplet', color:'#ff4d7d', bg:'rgba(255,77,125,0.15)' },
+      vert: { name:'Équipe 2 — Woke', color:'#00c97a', bg:'rgba(0,201,122,0.15)' },
+      bleu: { name:"Équipe 3 — Alloc'", color:'#4d9fff', bg:'rgba(77,159,255,0.15)' },
+    };
+    if(badge) {
+      badge.textContent = '📱 ' + teamInfo[t].name;
+      badge.style.background = teamInfo[t].bg;
+      badge.style.color = teamInfo[t].color;
+      badge.style.border = '1.5px solid ' + teamInfo[t].color;
+    }
+    setTimeout(()=>{
+      state.team = t;
+      // Cache les onglets Admin et QR pour les joueurs
+      const adminBtn = document.getElementById('nav-admin');
+      const qrBtn = document.getElementById('nav-qr');
+      if(adminBtn) adminBtn.style.display = 'none';
+      if(qrBtn) qrBtn.style.display = 'none';
+      // Lance directement le jeu sans passer par l'écran de sélection
+      loadSharedState();
+      state.startTime = Date.now();
+      state.gameStarted = true;
+      startTimer();
+      renderEnigma(0);
+      updateTopbar();
+      showScreen('game');
+      document.getElementById('bottom-nav').style.display='flex';
+    }, 300);
+  } else {
+    // Version admin — accès complet
+    if(badge) {
+      badge.textContent = '🎩 Mode Maître du Jeu — Accès complet';
+      badge.style.background = 'rgba(155,93,229,0.15)';
+      badge.style.color = '#9b5de5';
+      badge.style.border = '1.5px solid #9b5de5';
+    }
+  }
+})();
+</script>
+</body>
+</html>
